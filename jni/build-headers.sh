@@ -1,0 +1,1 @@
+javah -jni -o opengl-jni.h -classpath ../bin/classes ch.bfh.bachelor.opengl.JNIOpenGLInterface
