@@ -28,17 +28,21 @@ static void checkGlError(const char* op) {
 }
 
 GLuint program;
+GLuint projectionUniform;
+float width;
+float height;
 
 static const char vShaderStr[] = "attribute vec4 vPosition;\n"
+		"uniform mat4 Projection;\n"
 		"void main()                 \n"
 		"{                           \n"
-		"   gl_Position = vPosition; \n"
+		"   gl_Position =  Projection * vPosition; \n"
 		"}                           \n";
 
 static const char fShaderStr[] = "precision mediump float;\n"
 		"void main()                                \n"
 		"{                                          \n"
-		"  gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0); \n"
+		"  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); \n"
 		"} \n";
 
 GLuint loadShader(GLenum shaderType, const char* pSource) {
@@ -73,6 +77,8 @@ bool setupGraphics(int w, int h) {
 	printGLString("Renderer", GL_RENDERER);
 	printGLString("Extensions", GL_EXTENSIONS);
 
+	width = (float)w;
+	height = (float)h;
 
 	GLuint vertexShader;
 	GLuint fragmentShader;
@@ -111,6 +117,7 @@ bool setupGraphics(int w, int h) {
 	glViewport(0, 0, w, h);
 	checkGlError("glViewport");
 
+
 	return true;
 }
 
@@ -120,45 +127,60 @@ void renderFrame() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	checkGlError("glClear");
 
-	float vertices[] = {
-		// FRONT
-		-25.0f,-25.0f, 25.0f,
-		 25.0f,-25.0f, 25.0f,
-		-25.0f, 25.0f, 25.0f,
-		 25.0f, 25.0f, 25.0f,
-		// BACK
-		-25.0f,-25.0f,-25.0f,
-		-25.0f, 25.0f, -25.0f,
-		 25.0f, -25.0f,-25.0f,
-		 25.0f, 25.0f, -25.0f,
-		// LEFT
-		-25.0f,-25.0f, 25.0f,
-		-25.0f, 25.0f, 25.0f,
-		-25.0f,-25.0f,-25.0f,
-		-25.0f, 25.0f,-25.0f,
-		 // RIGHT
-		 25.0f,-25.0f,-25.0f,
-		 25.0f, 25.0f,-25.0f,
-		 25.0f,-25.0f, 25.0f,
-		 25.0f, 25.0f, 25.0f,
-		 // TOP
-		-25.0f, 25.0f, 25.0f,
-		 25.0f, 25.0f, 25.0f,
-		-25.0f, 25.0f, -25.0f,
-		 25.0f, 25.0f, -25.0f,
-		 // BOTTOM
-		-25.0f, -25.0f, 25.0f,
-		-25.0f, -25.0f, -25.0f,
-		 25.0f, -25.0f, 25.0f,
-		 25.0f, -25.0f, -25.0f,
-	};
-
 	// Use the program object
 	glUseProgram(program);
+	checkGlError("glUseProgram");
+
+	float vertices[] = {
+		// FRONT
+		 1.0f, 1.0f, -7.0f,
+		 -1.0f, 1.0f, -7.0f,
+		 1.0f, -1.0f, -7.0f,
+		 -1.0f, -1.0f, -7.0f,
+
+	};
+
+	float h = 4.0f * height / width;
+
+	float near = 4;
+	float far = 10;
+	float right = 2.0;
+	float left = -2.0;
+	float bottom = -h/2;
+	float top = h/2;
+
+
+	projectionUniform = glGetUniformLocation(program,"Projection");
+	checkGlError("glGetUniformLocation");
+
+	float projection[16];
+	projection[0]  = (2.0 * near) / (right - left);
+	projection[1]  = 0.0;
+	projection[2]  = 0.0;
+	projection[3] = 0.0;
+
+	projection[4]  = 0.0;
+	projection[5]  = (2.0 * near) / (top - bottom);
+	projection[6]  = 0.0;
+	projection[7] = 0.0;
+
+	projection[8]  = (right + left) / (right - left);
+	projection[9]  = (top + bottom) / (top - bottom);
+	projection[10] = -(far + near) / (far - near);
+	projection[11] = -1.0;
+
+	projection[12]  = 0.0;
+	projection[13]  = 0.0;
+	projection[14] = -(2.0 * far * near) / (far - near);
+	projection[15] = 0.0;
+
+	glUniformMatrix4fv(projectionUniform,1, 0,projection);
+	checkGlError("glUniformMatrix4fv");
+
 	// Load the vertex data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
 	glEnableVertexAttribArray(0);
-	glDrawArrays(GL_TRIANGLES, 0, 24);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 }
 

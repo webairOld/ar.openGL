@@ -285,7 +285,7 @@ public class OpenGLSurfaceView extends GLSurfaceView {
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-            // Do nothing.
+            //stub method
         }
     }
 }
