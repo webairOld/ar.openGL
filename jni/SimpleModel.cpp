@@ -1,4 +1,29 @@
-#include "Model.h"
+#include "SimpleModel.h"
+
+SimpleModel::SimpleModel() {
+	vertices = new float[12];
+
+	float theVertices[] = {
+		// FRONT
+		 0.5f, 0.5f, -1.0f,
+		 -0.5f, 0.5f, -1.0f,
+		 0.5f, -0.5f, -1.0f,
+		 -0.5f, -0.5f, -1.0f,
+
+	};
+
+	for (int i = 0; i<sizeof(theVertices) / sizeof(float); i++) {
+		vertices[i] = theVertices[i];
+	}
+}
+
+float * SimpleModel::getVertices() {
+	return vertices;
+}
+
+SimpleModel::~SimpleModel() {
+	delete vertices;
+}
 
 /*
 	float normals[72] = {

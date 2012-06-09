@@ -3,13 +3,13 @@
 #include <android/log.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "bundehaus.h"
 
-#include "Model.h"
+#include "SimpleModel.h"
 
 //Export this lines to a seperate header file
 #define  LOG_TAG    "opengl-jni"
@@ -29,20 +29,25 @@ static void checkGlError(const char* op) {
 
 GLuint program;
 GLuint projectionUniform;
+GLuint hMatrix;
 float width;
 float height;
 
-static const char vShaderStr[] = "attribute vec4 vPosition;\n"
+SimpleModel *sm;
+
+static const char vShaderStr[] =
+		"attribute vec4 vPosition;\n"
 		"uniform mat4 Projection;\n"
+		"uniform mat4 HomogeneousMatrix;\n"
 		"void main()                 \n"
-		"{                           \n"
-		"   gl_Position =  Projection * vPosition; \n"
+		"{"
+		"   gl_Position = Projection * HomogeneousMatrix * vPosition; \n"
 		"}                           \n";
 
 static const char fShaderStr[] = "precision mediump float;\n"
 		"void main()                                \n"
 		"{                                          \n"
-		"  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); \n"
+		"  gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); \n"
 		"} \n";
 
 GLuint loadShader(GLenum shaderType, const char* pSource) {
@@ -121,6 +126,12 @@ bool setupGraphics(int w, int h) {
 	return true;
 }
 
+void initModels() {
+	sm = new SimpleModel();
+}
+
+
+
 void renderFrame() {
 	//glClearColor(0.8, 0.6, 1.0, 1.0f);
 	//checkGlError("glClearColor");
@@ -131,23 +142,26 @@ void renderFrame() {
 	glUseProgram(program);
 	checkGlError("glUseProgram");
 
-	float vertices[] = {
-		// FRONT
-		 1.0f, 1.0f, -7.0f,
-		 -1.0f, 1.0f, -7.0f,
-		 1.0f, -1.0f, -7.0f,
-		 -1.0f, -1.0f, -7.0f,
+	projectionUniform = glGetUniformLocation(program,"Projection");
+	checkGlError("glGetUniformLocation");
 
+	/*
+	float projection[] = {
+		0.5, 0.0, 0.0, 0.0,
+		0.0, 0.5, 0.0, 0.0,
+		0.0, 0.0, 0.5, 0.0,
+		0.0, 0.0,0.0, 1.0,
 	};
+	*/
 
-	float h = 4.0f * height / width;
+	float aspect = width / height;
 
-	float near = 4;
+	float near = 0.001;
 	float far = 10;
-	float right = 2.0;
-	float left = -2.0;
-	float bottom = -h/2;
-	float top = h/2;
+	float right = near;
+	float left = -near;
+	float bottom = -near / aspect;
+	float top = near / aspect;
 
 
 	projectionUniform = glGetUniformLocation(program,"Projection");
@@ -174,14 +188,31 @@ void renderFrame() {
 	projection[14] = -(2.0 * far * near) / (far - near);
 	projection[15] = 0.0;
 
+
 	glUniformMatrix4fv(projectionUniform,1, 0,projection);
 	checkGlError("glUniformMatrix4fv");
 
+	hMatrix = glGetUniformLocation(program,"HomogeneousMatrix");
+	float translation[] = {
+		1.0, 0.0, 0.0, 0.0,
+		0.0, 1.0, 0.0, 0.0,
+		0.0, 0.0, 1.0, 0.0,
+		0.0, 0.0, -1.0, 1.0,
+	};
+	glUniformMatrix4fv(hMatrix,1, 0,translation);
+
+
+	// set input data to arrays
+	glVertexAttribPointer(0,3, GL_FLOAT,GL_FALSE, 0, bundeshausVerts);
+	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_TRIANGLES, 0, bundeshausNumVerts);
+
+	/*
 	// Load the vertex data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, sm->getVertices());
 	glEnableVertexAttribArray(0);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
+    */
 }
 
 extern "C" {
@@ -190,6 +221,7 @@ JNIEXPORT void JNICALL Java_ch_bfh_bachelor_opengl_JNIOpenGLInterface_init(
 		JNIEnv *env, jclass thiz, jint width, jint height) {
 
 	setupGraphics(width, height);
+	initModels();
 
 }
 
