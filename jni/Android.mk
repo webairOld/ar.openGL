@@ -16,8 +16,9 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_LDLIBS := -llog -lGLESv2
+LOCAL_LDLIBS += -landroid
 LOCAL_CFLAGS    := -Werror
 LOCAL_MODULE    := opengl-jni
-LOCAL_SRC_FILES := opengl-jni.cpp SimpleModel.cpp
+LOCAL_SRC_FILES := opengl-jni.cpp opengl/Model.cpp opengl/Renderer.cpp
 
 include $(BUILD_SHARED_LIBRARY)

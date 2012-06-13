@@ -8,9 +8,14 @@ import javax.microedition.khronos.opengles.GL10;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+import android.widget.TextView;
 
 
 public class OpenGLSurfaceView extends GLSurfaceView {
@@ -21,6 +26,7 @@ public class OpenGLSurfaceView extends GLSurfaceView {
 	public OpenGLSurfaceView(Context context) {
 		super(context);
 		init(false,0,0);
+		
 	}
 	
     public OpenGLSurfaceView(Context context, boolean translucent, int depth, int stencil) {
@@ -108,7 +114,8 @@ public class OpenGLSurfaceView extends GLSurfaceView {
         };
 
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
-
+        	
+        	
             /* Get the number of minimally matching EGL configurations
              */
             int[] num_config = new int[1];

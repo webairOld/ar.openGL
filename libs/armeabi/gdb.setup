@@ -1,0 +1,2 @@
+set solib-search-path /home/seed/Development/eclipse-workspaces/ch.bfh.bachelor/ar.openGL/obj/local/armeabi
+directory /opt/android-ndk/platforms/android-14/arch-arm/usr/include /opt/android-ndk/sources/cxx-stl/gnu-libstdc++ /opt/android-ndk/sources/cxx-stl/gnu-libstdc++/include /opt/android-ndk/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include /home/seed/Development/eclipse-workspaces/ch.bfh.bachelor/ar.openGL/jni
