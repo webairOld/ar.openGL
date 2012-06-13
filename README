@@ -1,0 +1,13 @@
+This project contains a app to test the opengl es2 functionality for the Android NDK
+Because we are still learning the c++ language please feel free to give us tips ;)
+
+#### Features ####
+- Creating Models using header files (generated)
+- Drawing and moving model with translation matrix
+- Implemented diffuse light shader
+
+#### Planed Features ####
+- Accessing Files from ndk from the Android Assets folder
+- Implement wavefront obj parser to load models from text files
+- implement sensor data to rotate Objects on screen
+- adding C++ Matrix class for translation, rotation
